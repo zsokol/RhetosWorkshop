@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RhetosDeploy>False</RhetosDeploy>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="obj\Rhetos\Source\EntityFrameworkContext.cs" />
+    <Compile Include="obj\Rhetos\Source\Model\BookstoreModel.cs" />
+    <Compile Include="obj\Rhetos\Source\Model\CommonModel.cs" />
+    <Compile Include="obj\Rhetos\Source\Model\QueryExtensions.cs" />
+    <Compile Include="obj\Rhetos\Source\PersistenceStorageMapper.cs" />
+    <Compile Include="obj\Rhetos\Source\Repositories.cs" />
+    <Compile Include="obj\Rhetos\Source\Repositories\BookstoreRepositories.cs" />
+    <Compile Include="obj\Rhetos\Source\Repositories\CommonRepositories.cs" />
+    <Compile Include="obj\Rhetos\Source\RhetosHostBuilderAppConfiguration.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.3" />
+    <PackageReference Include="Rhetos.CommonConcepts" Version="5.4.0" />
+    <PackageReference Include="Rhetos.Host" Version="5.4.0" />
+    <PackageReference Include="Rhetos.Host.AspNet" Version="5.4.0" />
+    <PackageReference Include="Rhetos.MSBuild" Version="5.4.0" />
+    <PackageReference Include="Rhetos.RestGenerator" Version="5.1.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+</Project>
