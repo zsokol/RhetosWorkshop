@@ -35,4 +35,17 @@ Module Bookstore
         ShortString OriginalLanguage;
         Reference Translator Bookstore.Person;
     }
+
+    Entity Topic
+    {
+        ShortString Name { Unique; Required; }
+    }
+
+    Entity BookTopic
+    {
+        Reference Book { Detail; }
+        Reference Topic { Required; }
+
+        UniqueMultiple 'Book Topic';
+    }
 }
