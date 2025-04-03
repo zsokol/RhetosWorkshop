@@ -4,7 +4,7 @@ Module Bookstore
 
 	Entity Employee
 	{
-		Integer IdentificationNumber;
+		Integer IdentificationNumber { AutoCode; }
 		ShortString LastName { Required; }
 		ShortString FirstName { Required; }
 		ShortString Code { RegExMatch "\d{7,10}" "Code must have 7 to 10 digits."; }
@@ -13,7 +13,10 @@ Module Bookstore
 		Integer TestPeriod { MinValue 1; MaxValue 12; }
 		ShortString Iban { Required; Unique; MinLength 21; MaxLength 21; }
 		ShortString Oib { RegExMatch "\d{11}" "OIB must have exactly 11 digits"; }
-		Bool VirtualyDeleted { Required; }
+		Bool VirtualyDeleted { DefaultValue 'item => false'; }
+		Datetime Created { Required; CreationTime; }
+		Datetime Modified { ModificationTimeOf Bookstore.Employee.Oib; }
+		Deactivatable;
 
 		UniqueMultiple 'LastName FirstName';
 
@@ -28,6 +31,19 @@ Module Bookstore
 
 		ItemFilter VirtualyDeleted 'item => item.VirtualyDeleted != null && item.VirtualyDeleted.Value';
 		Lock VirtualyDeleted "Employee has been soft deleted";
+
+		Logging
+		{
+			Log Bookstore.Employee.FirstName;
+			Log Bookstore.Employee.LastName;
+			Log Bookstore.Employee.IdentificationNumber;
+			Log Bookstore.Employee.Code;
+			Log Bookstore.Employee.WorkStarted;
+			Log Bookstore.Employee.WorkFinished;
+			Log Bookstore.Employee.Iban;
+			Log Bookstore.Employee.Oib;
+			Log Bookstore.Employee.VirtualyDeleted;
+		}
 	}
 
 	Entity Manager
@@ -56,5 +72,7 @@ Module Bookstore
 		Reference Department { Required; }
 
 		UniqueMultiple 'Employee Department';
+
+		Logging { AllProperties; }
 	}
 }
