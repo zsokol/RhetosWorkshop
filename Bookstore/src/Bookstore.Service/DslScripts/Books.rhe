@@ -56,4 +56,22 @@ Module Bookstore
         Take 'Author.Name';
         Take TranslatorName 'Extension_ForeignBook.Translator.Name';
     }
+
+    SqlQueryable BookInfo
+    "
+        SELECT
+            b.ID,
+            NumberOfChapters = COUNT(c.ID)
+        FROM
+            Bookstore.Book b
+            LEFT JOIN Bookstore.Chapter c ON c.BookID = b.ID
+        GROUP BY
+            b.ID
+    "
+    {
+        Extends Bookstore.Book;
+        Integer NumberOfChapters;
+
+        AutodetectSqlDependencies;
+    }
 }
