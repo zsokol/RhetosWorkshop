@@ -48,4 +48,12 @@ Module Bookstore
 
         UniqueMultiple 'Book Topic';
     }
+
+    Browse BookGrid Bookstore.Book
+    {
+        Take Code;
+        Take Title;
+        Take 'Author.Name';
+        Take TranslatorName 'Extension_ForeignBook.Translator.Name';
+    }
 }
