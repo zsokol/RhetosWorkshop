@@ -55,6 +55,7 @@ Module Bookstore
         Take Title;
         Take 'Author.Name';
         Take TranslatorName 'Extension_ForeignBook.Translator.Name';
+        Take NumberOfChapters 'Extension_BookInfo.NumberOfChapters';
     }
 
     SqlQueryable BookInfo <SQL\BookInfo.sql>
@@ -63,5 +64,55 @@ Module Bookstore
         Integer NumberOfChapters;
 
         AutodetectSqlDependencies;
+    }
+
+    Computed ExpectedBookRating 'repository =>
+        {
+            var books = repository.Bookstore.Book.Query()
+                .Select(b =>
+                    new
+                    {
+                        b.ID,
+                        b.Title,
+                        IsForeign = b.Extension_ForeignBook.ID != null
+                    })
+                .ToList();
+
+            var ratings = new List<ExpectedBookRating>();
+            foreach (var book in books)
+            {
+                decimal rating = 0;
+
+                if (book.Title?.IndexOf("super", StringComparison.InvariantCultureIgnoreCase) >= 0)
+                    rating += 100;
+
+                if (book.Title?.IndexOf("great", StringComparison.InvariantCultureIgnoreCase) >= 0)
+                    rating += 50;
+
+                if (book.IsForeign)
+                    rating *= 1.2m;
+
+                ratings.Add(new ExpectedBookRating { ID = book.ID, Rating = rating });
+            }
+
+            return ratings.ToArray();
+        }'
+    {
+        Extends Bookstore.Book;
+        Decimal Rating;
+    }
+
+    SqlQueryAble BookTopics <SQL\BookTopics.sql>
+    {
+        Extends Bookstore.Book;
+        Integer NumberOfTopics;
+        AutoDetectSqlDependencies;
+    }
+
+    Browse BookByTopicsGrid Bookstore.Book
+    {
+        Take BookName 'Title';
+        Take AuthorName 'Author.Name';
+        Take NumberOfTopics 'Extension_BookTopics.NumberOfTopics';
     }
 }
