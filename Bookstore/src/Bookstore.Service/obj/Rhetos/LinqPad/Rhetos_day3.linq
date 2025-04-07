@@ -119,11 +119,60 @@ void Main()
 		wantedBooks.ToString().Dump(); // Print the SQL query.
 		wantedBooks.ToSimple().ToList().Dump(); // Load and print the books.
 
-		repository.Bookstore.Book.Query(new[] { "abc", "def" })
-			.ToString().Dump();
-		repository.Bookstore.Book.Query(new Bookstore.Person { Name = "John" })
-			.ToString().Dump();
+		repository.Bookstore.Book.Query(new[] { "abc", "def" }).ToString().Dump();
+		repository.Bookstore.Book.Query(new Bookstore.Person { Name = "John" }).ToString().Dump();
 
 		//scope.CommitAndClose(); // Database transaction is rolled back by default.
     }
 }
+
+/*
+//POST
+{
+  "id": "3fa85f64-5717-4562-b3fc-3c963f66afa6",
+  "code": "1234567",
+  "firstName": "Ime brata",
+  "iban": "HR2360000123456789013",
+  "identificationNumber": 123,
+  "lastName": "Prezime",
+  "oib": "12345678902",
+  "testPeriod": 2,
+  "virtualyDeleted": false,
+  "workStarted": "2025-04-01"
+}
+
+//POST
+{
+  "id": "3fa85f64-5717-4562-b3fc-6c963f66afa6",
+  "code": "1234569",
+  "firstName": "Ime opet",
+  "iban": "HR2360000123456789016",
+  "lastName": "Drugo prezime",
+  "oib": "12345678906",
+  "testPeriod": 2,
+  "workStarted": "2025-04-01"
+}
+//PUT
+{
+  "id": "3FA85F64-5717-4562-B3FC-2C963F66AFA6",
+  "code": "1234560",
+  "createdTimestamp": "2025-04-03 14:20:20",
+  "firstName": "Name",
+  "iban": "HR2360000123456789012",
+  "identificationNumber": 123,
+  "lastName": "Surname",
+  "oib": "12345678901",
+  "testPeriod": 1,
+  "virtualyDeleted": false,
+  "workStarted": "2025-04-01 00:00:00.000"
+}
+
+
+https://localhost:7009/rest/Bookstore/Book/?filters=[{"Filter":"Bookstore.LongBooks"}]
+https://localhost:7009/rest/bookstore/book/?filters=[{"Filter":"Bookstore.ForeignAuthorXWithChapters"}]
+https://localhost:7009/rest/bookstore/book/?filters=[{"Filter":"Bookstore.LongBooks3","Value":{"MinimumPages":10,"ForeignBooksOnly":false}}]
+
+https://localhost:7009/rest/bookstore/book/?filters=[{"Filter":"Bookstore.LongBooks3","Value":{"MinimumPages":10,"ForeignBooksOnly":false}},{"Property":"Title","Operation":"Equal","Value":"The curiosity"}]
+
+https://localhost:7009/rest/bookstore/book/?filters=[{"Filter":"Bookstore.LongBooks3","Value":{"MinimumPages":10,"ForeignBooksOnly":false}}]&top=1&skip=1&sort=ID
+*/
