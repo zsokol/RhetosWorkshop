@@ -75,4 +75,22 @@ Module Bookstore
 
 		Logging { AllProperties; }
 	}
+
+	Entity Trainee
+	{
+		Extends Bookstore.Employee;
+		Integer TrainingCompletedPercentage {Required;MinValue 0;MaxValue 100;}
+	}
+
+	SqlView Trainees <SQL\Trainees.sql> 
+	{
+		SqlDependsOn Bookstore.Trainee;
+	}
+
+	SqlQueryable EmployeeEducations <SQL\EmployeeEducations.sql>
+	{
+		Extends Bookstore.Employee;
+		Integer NumberOfEducations;
+		Integer TrainingCompletedPercentage;
+	}
 }
