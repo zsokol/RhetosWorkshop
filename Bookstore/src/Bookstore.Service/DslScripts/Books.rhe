@@ -16,6 +16,7 @@ Module Bookstore
     {
         Bool HighPriorityOnly;
     }
+    Parameter UncertainExplanations2{}
 
     Entity Book
     {
@@ -72,12 +73,6 @@ Module Bookstore
                     || book.Author.Name == author.Name);
             }';
     }
-    // Da bi radio primjer iz dokumentacije, evo ekstenzije koja nema baš smisla
-    Entity BookDescription
-    {
-        Extends Bookstore.Book;
-        LongString Description { Required; }
-    }
 
     Entity Person
     {
@@ -125,6 +120,46 @@ Module Bookstore
         ShortString BookTitle;
         Bool HighPriority;
     }
+    
+    Entity Disposal
+    {
+        Reference Book { Required; }
+        LongString Explanation { Required; }
+        DateTime EffectiveSince { CreationTime; }
+        Reference Book { Required; }
+
+        ItemFilter ImportantBookExplanation 'item => item.Book.Title.Contains("important") && item.Explanation.Length < 50';
+        InvalidData ImportantBookExplanation 'When disposing an important book, the explanation should be at least 50 characters long.';
+
+        ItemFilter HighRating 'item => item.Book.Extension_BookRating.Rating > 100';
+        InvalidData HighRating 'You are not allowed to dispose a book with rating above 100.';
+
+        ItemFilter UncertainExplanations 'disposal => _domRepository.Bookstore.UncertainWord.Subquery.Any(uncertain => disposal.Explanation.Contains(uncertain.Word))';
+        InvalidData UncertainExplanations 'The explanation contains uncertain words.';
+
+        ComposableFilterBy UncertainExplanations2 '(query, repository, parameter) =>
+        {
+            var uncertainWords = _domRepository.Bookstore.UncertainWord.Query().Select(uncertain => uncertain.Word);
+            return query.Where(disposal => uncertainWords.Any(word => disposal.Explanation.Contains(word)));
+        }';
+        InvalidData UncertainExplanations2 'The explanation contains uncertain words. (v2)';
+    }
+
+    Entity BookRating
+    {
+        Extends Bookstore.Book;
+        Decimal Rating; // ComputedFrom Bookstore.ComputeBookRating
+    }
+    // Da bi radio primjer iz dokumentacije
+    Entity BookDescription
+    {
+        Extends Bookstore.Book;
+        LongString Description { Required; }
+    }
+    Entity UncertainWord
+    {
+        ShortString Word;
+    }
 
     Browse BookGrid Bookstore.Book
     {
@@ -132,7 +167,7 @@ Module Bookstore
         Take Title;
         Take 'Author.Name';
         Take TranslatorName 'Extension_ForeignBook.Translator.Name';
-        Take Description 'Extension_BookDescription.Description'; //nema ekstenzije BookDescription
+        Take Description 'Extension_BookDescription.Description';
         Take NumberOfChapters 'Extension_BookInfo.NumberOfChapters';
 
         // This query is an alternative data source for BookGrid.
