@@ -1,29 +1,29 @@
-﻿//using System.ComponentModel.Composition;
-//using Rhetos.Compiler;
-//using Rhetos.Dom.DefaultConcepts;
-//using Rhetos.Extensibility;
+﻿using System.ComponentModel.Composition;
+using Rhetos.Compiler;
+using Rhetos.Dom.DefaultConcepts;
+using Rhetos.Extensibility;
 
-//namespace Bookstore.RhetosExtension
-//{
-//    [Export(typeof(IConceptCodeGenerator))]
-//    [ExportMetadata(MefProvider.Implements, typeof(ModificationTimeInfo))]
-//    public class ModificationTimeCodeGenerator : IConceptCodeGenerator
-//    {
-//        public void GenerateCode(Rhetos.Dsl.IConceptInfo conceptInfo, ICodeBuilder codeBuilder)
-//        {
-//            var info = (ModificationTimeInfo)conceptInfo;
+namespace Bookstore.RhetosExtension
+{
+    //[Export(typeof(IConceptCodeGenerator))]
+    [ExportMetadata(MefProvider.Implements, typeof(ModificationTimeInfo))]
+    public class ModificationTimeCodeGenerator : IConceptCodeGenerator
+    {
+        public void GenerateCode(Rhetos.Dsl.IConceptInfo conceptInfo, ICodeBuilder codeBuilder)
+        {
+            var info = (ModificationTimeInfo)conceptInfo;
 
-//            string snippet =
-//            $@"{{ 
-//                var now = _executionContext.SqlUtility.GetDatabaseTime(_executionContext.SqlExecuter);
+            string snippet =
+            $@"{{ 
+                var now = _executionContext.SqlUtility.GetDatabaseTime(_executionContext.SqlExecuter);
 
-//                foreach (var newItem in insertedNew)
-//                    if(newItem.{info.Property.Name} == null)
-//                        newItem.{info.Property.Name} = now;
-//            }}
-//            ";
+                foreach (var newItem in insertedNew)
+                    if(newItem.{info.Property.Name} == null)
+                        newItem.{info.Property.Name} = now;
+            }}
+            ";
 
-//            codeBuilder.InsertCode(snippet, WritableOrmDataStructureCodeGenerator.InitializationTag, info.Property.DataStructure);
-//        }
-//    }
-//}
+            codeBuilder.InsertCode(snippet, WritableOrmDataStructureCodeGenerator.InitializationTag, info.Property.DataStructure);
+        }
+    }
+}
