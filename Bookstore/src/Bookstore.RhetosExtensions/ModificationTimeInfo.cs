@@ -7,9 +7,9 @@ namespace Bookstore.RhetosExtension
     // <summary>
     /// Automatically enters time when the records was created.
     /// </summary>
-    //[Export(typeof(IConceptInfo))]
+    [Export(typeof(IConceptInfo))]
     [ConceptKeyword("ModificationTime")]
-    public class ModificationTimeInfo
+    public class ModificationTimeInfo : IConceptInfo
     {
         [ConceptKey]
         public DateTimePropertyInfo Property { get; set; }

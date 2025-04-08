@@ -5,7 +5,7 @@ using Rhetos.Extensibility;
 
 namespace Bookstore.RhetosExtension
 {
-    //[Export(typeof(IConceptCodeGenerator))]
+    [Export(typeof(IConceptCodeGenerator))]
     [ExportMetadata(MefProvider.Implements, typeof(ModificationTimeInfo))]
     public class ModificationTimeCodeGenerator : IConceptCodeGenerator
     {
