@@ -1,5 +1,14 @@
 Module Bookstore
 {
+    Parameter LongReviews{}
+    Parameter BestReviews{}
+
+    Entity NumberOfReviews
+    {
+        Extends Bookstore.Book;
+        Integer Count;
+    }
+
     Entity Review
     {
         Reference Book { Required; }
