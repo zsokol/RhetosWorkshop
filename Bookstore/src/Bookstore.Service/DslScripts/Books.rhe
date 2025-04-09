@@ -24,6 +24,7 @@ Module Bookstore
         ShortString Title { Required; }
         Integer NumberOfPages;
         Reference Author Bookstore.Person;
+        Reference AssignedTo Bookstore.Employee;
 
         ItemFilter LongBooks 'item => item.NumberOfPages >= 500';
         ComposableFilterBy LongBooks2 '(query, repository, parameter) =>
@@ -72,6 +73,42 @@ Module Bookstore
                 return query.Where(book => book.AuthorID == author.ID
                     || book.Author.Name == author.Name);
             }';
+
+        RowPermissions
+        {
+
+            AllowRead EveryoneCanRead 'context =>
+                {
+                    return book => book.AssignedTo.ID != null;
+                }';
+
+            // Better:
+            AllowRead EveryoneCanRead2 'context =>
+                {
+                    return book => true;
+                }';
+
+            // Shorter:
+            AllowRead EveryoneCanRead3 'context => book => true';
+
+            //====================
+
+            Allow OwnerCanWrite 'context =>
+                {
+                    Guid employeeId = context.Repository
+                        .Bookstore.Employee.Query()
+                        .Where(e => e.UserName == context.UserInfo.UserName)
+                        .Select( e => e.ID)
+                        .SingleOrDefault();
+                    return book => book.AssignedTo.ID == employeeId;
+                }';
+
+            // Better:
+            AllowWrite OwnerCanWrite2 'context =>
+                {
+                    return book => book.AssignedTo.UserName == context.UserInfo.UserName;
+                }';
+        }
     }
 
     Entity Person
@@ -296,4 +333,6 @@ Module Bookstore
         Integer NumberOfBooks;
         ShortString TitlePrefix;
     }
+
+    AutoInheritRowPermissions;
 }

@@ -17,6 +17,7 @@ Module Bookstore
 		Datetime Created { Required; CreationTime; }
 		Datetime Modified { ModificationTimeOf Bookstore.Employee.Oib; }
 		Deactivatable;
+		ShortString UserName;
 
 		UniqueMultiple 'LastName FirstName';
 
