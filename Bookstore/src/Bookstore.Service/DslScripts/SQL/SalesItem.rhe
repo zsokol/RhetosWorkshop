@@ -1,0 +1,91 @@
+// ===============================================================================
+// Example of inheritance hierarchy (this is not an actual Rhetos object model)
+// ===============================================================================
+// public class SalesItem
+// {
+//     public string Code;
+//     public decimal Price;
+// }
+// public class Book : SalesItem
+// {
+//     public int NumberOfPages;
+// }
+// public class Food : SalesItem
+// {
+//     public int Calories;
+// }
+
+// ===============================================================================
+// Standard options for database implementation
+// ===============================================================================
+// // OPTION 1: Table per Hierarchy
+// CREATE TABLE SalesItem (ObjectType, Code, Price, NumberOfPages, Calories)
+
+// // OPTION 2: Table per Type
+// CREATE TABLE SalesItem (Code, Price)
+// CREATE TABLE Book (NumberOfPages) foreign key ID->SalesItem.ID
+// CREATE TABLE Food (Calories) foreign key ID->SalesItem.ID
+// // In Rhetos DSL: use "Extends"
+
+// // OPTION 3: Table per Concrete Class
+// CREATE TABLE Book (Code, Price, NumberOfPages)
+// CREATE TABLE Food (Code, Price, Calories)
+// CREATE VIEW SalesItem
+//     SELECT Code, Price FROM Book
+//     UNION ALL
+//     SELECT Code, Price FROM Food
+// // In Rhetos DSL: use "Polymorphic"
+
+Module Bookstore
+{
+    // Read more about Polymorphic concept at https://github.com/Rhetos/Rhetos/wiki/Polymorphic-concept
+    
+    Polymorphic SalesItem
+    {
+        ShortString Code;
+        Money Price;
+        ShortString Description;
+    }
+
+    Entity Food
+    {
+        ShortString Code { AutoCode; DefaultValue 'item => "F+++"'; }
+        Money Price { Required; }
+        ShortString Description;
+        Integer Calories;
+
+        Is Bookstore.SalesItem;
+    }
+
+    Entity Book
+    {
+        ShortString Code { AutoCode; DefaultValue 'item => "B+++"'; }
+        Money Price; // Not required. Some books are not on sale.
+        ShortString Title { Required; }
+        Integer NumberOfPages;
+
+        Is Bookstore.SalesItem
+        {
+            Implements Bookstore.SalesItem.Description "Title + ISNULL(', ' + (SELECT Name FROM Bookstore.Person WHERE ID = Bookstore.Book.AuthorID), '')";
+                
+            Where 'Price IS NOT NULL';
+        }
+    }
+
+    // Polymorphic can be used as any other queryable data structure:
+
+    Browse SalesItemGrid Bookstore.SalesItem
+    {
+        Take Code;
+        Take Price;
+        Take 'Book.NumberOfPages';
+    }
+
+    // Polymorphic can even have a detail entity:
+
+    Entity SalesItemComment
+    {
+        Reference SalesItem { Detail; }
+        LongString Comment;
+    }
+}
