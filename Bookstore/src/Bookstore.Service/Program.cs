@@ -1,7 +1,10 @@
 using Rhetos;
 using Microsoft.AspNetCore.Authentication.Negotiate;
+using NLog.Web;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseNLog();
 
 builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
     .AddNegotiate();
