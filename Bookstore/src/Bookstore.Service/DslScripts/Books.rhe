@@ -230,12 +230,23 @@ Module Bookstore
             }';
     }
 
-    SqlQueryable BookInfo <SQL\BookInfo.sql>
+    SqlQueryable ComputedBookInfo <SQL\BookInfo.sql>
     {
         Extends Bookstore.Book;
         Integer NumberOfChapters;
-
+        
+        ChangesOnLinkedItems Bookstore.Chapter.Book;
+        
         AutodetectSqlDependencies;
+    }
+
+    Entity BookInfo
+    {
+        ComputedFrom Bookstore.ComputedBookInfo
+        {
+            AllProperties;
+            KeepSynchronized;
+        }
     }
 
     Computed ExpectedBookRating 'repository =>
