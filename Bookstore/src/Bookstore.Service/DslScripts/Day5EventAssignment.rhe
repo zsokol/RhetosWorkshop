@@ -1,0 +1,113 @@
+Module Bookstore
+{
+    AutodetectSqlDependencies;
+    
+    Entity BookOrder
+    {
+        ShortString BuyerName { Required; } // For simplicity, in real life it should reference some buyer entity
+        DateTime CreatedAt { CreationTime; }
+
+        Is Bookstore.BookOrderEvent 'Creating'
+        {
+            Implements Bookstore.BookOrderEvent.EffectiveSince "CreatedAt";
+            Implements Bookstore.BookOrderEvent.BookOrder "ID";
+            Implements Bookstore.BookOrderEvent.NewStatus Bookstore.BookOrderStatus.Pending;
+        }
+    }
+
+    Entity BookOrderItem
+    {
+        Reference BookOrder { Detail; }
+        Reference Book;
+    }
+
+    Browse BookOrderGrid Bookstore.BookOrder
+    {
+        Take BuyerName;
+        Take CreatedAt;
+        Take CurrentStatus 'Extension_BookOrderCurrentState.Status.Name';
+    }
+
+    // BookOrder statuses
+    Hardcoded BookOrderStatus
+    {
+        // just a few statuses for demonstration
+        Entry Pending; // buyer submitted
+        Entry Processing; // processing BookOrder internally
+        Entry Shipped; // shipped
+        Entry OnHold; // on hold for what ever reason
+    }
+
+    SqlQueryable ComputeBookOrderCurrentState <SQL\ComputeBookOrderCurrentState.sql>
+    {
+        Extends Bookstore.BookOrder;
+        Reference Status Bookstore.BookOrderStatus;
+
+        ChangesOnLinkedItems Bookstore.ApproveBookOrder.BookOrder;
+        ChangesOnLinkedItems Bookstore.HoldBookOrder.BookOrder;
+        ChangesOnLinkedItems Bookstore.ReprocessBookOrder.BookOrder;
+        ChangesOnLinkedItems Bookstore.BookOrderShipped.BookOrder;
+    }
+
+    Entity BookOrderCurrentState
+    {
+        ComputedFrom Bookstore.ComputeBookOrderCurrentState
+        {
+            KeepSynchronized;
+            AllProperties;
+        }
+    }
+
+    // BookOrder events
+    Polymorphic BookOrderEvent
+    {
+        DateTime EffectiveSince;
+        Reference BookOrder;
+        Reference NewStatus Bookstore.BookOrderStatus;
+    }
+    // pending => processing
+    Entity ApproveBookOrder
+    {
+        DateTime EffectiveSince { CreationTime; }
+        Reference BookOrder;
+
+        Is Bookstore.BookOrderEvent
+        {
+            Implements Bookstore.BookOrderEvent.NewStatus Bookstore.BookOrderStatus.Processing;
+        }
+    }
+    // processing => shipped
+    Entity BookOrderShipped
+    {
+        DateTime EffectiveSince { CreationTime; }
+        Reference BookOrder;
+
+        Is Bookstore.BookOrderEvent
+        {            
+            Implements Bookstore.BookOrderEvent.NewStatus Bookstore.BookOrderStatus.Shipped;
+        }
+    }
+    // processing => on hold
+    Entity HoldBookOrder
+    {
+        DateTime EffectiveSince { CreationTime; }
+        Reference BookOrder;
+        LongString Explanation { Required; }
+
+        Is Bookstore.BookOrderEvent
+        {            
+            Implements Bookstore.BookOrderEvent.NewStatus Bookstore.BookOrderStatus.OnHold;
+        }
+    }
+    // on hold => processing
+    Entity ReprocessBookOrder
+    {
+        DateTime EffectiveSince { CreationTime; }
+        Reference BookOrder;
+
+        Is Bookstore.BookOrderEvent
+        {            
+            Implements Bookstore.BookOrderEvent.NewStatus Bookstore.BookOrderStatus.Processing;
+        }
+    }
+}
