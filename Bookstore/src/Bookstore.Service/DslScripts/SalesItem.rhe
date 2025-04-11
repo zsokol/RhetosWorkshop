@@ -39,7 +39,7 @@
 Module Bookstore
 {
     // Read more about Polymorphic concept at https://github.com/Rhetos/Rhetos/wiki/Polymorphic-concept
-    
+    AutodetectSqlDependencies;
     Polymorphic SalesItem
     {
         ShortString Code;
