@@ -1,3 +1,4 @@
+using Autofac;
 using Rhetos;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using NLog.Web;
@@ -25,6 +26,12 @@ builder.Services.AddSwaggerGen(o => o.CustomSchemaIds(type => type.ToString()));
 builder.Services.AddRhetosHost((serviceProvider, rhetosHostBuilder) => rhetosHostBuilder
         .ConfigureRhetosAppDefaults()
         .UseBuilderLogProviderFromHost(serviceProvider)
+        .ConfigureContainer(builder =>
+        {
+            // Registering custom components for Bookstore application:
+            builder.RegisterType<Bookstore.SmtpMailSender>().As<Bookstore.IMailSender>(); // Application uses SMTP implementation for sending mails. The registration will be overridden in unit tests by fake component.
+            builder.Register(context => context.Resolve<Rhetos.Utilities.IConfiguration>().GetOptions<Bookstore.MailOptions>()).SingleInstance(); // Standard pattern for registering an options class.
+        })
         .ConfigureConfiguration(cfg => cfg.MapNetCoreConfiguration(builder.Configuration)))
     .AddAspNetCoreIdentityUser()
     .AddHostLogging()
