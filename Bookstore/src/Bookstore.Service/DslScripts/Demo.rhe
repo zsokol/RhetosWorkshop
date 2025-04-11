@@ -40,4 +40,15 @@ Module Demo
                 return result;
             }';
     }
+
+    Entity Contract
+    {
+        History { AllProperties; }
+
+        ShortString Code { AutoCode; }
+        ShortString Partner { Required; }
+        Money Amount;
+
+        Deactivatable;
+    }
 }
