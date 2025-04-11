@@ -1,0 +1,49 @@
+Module TestReport
+{
+    Entity Document
+    {
+        ShortString Name;
+        Integer Code;
+    }
+    
+    // Report (only data) with multiple sources:
+    
+    Entity Part1 { Reference Parent TestReport.Document { Detail; } ShortString Name; }
+    Entity Part2 { Reference Parent TestReport.Document { Detail; } ShortString Name; }
+    
+    ReportData MultipleSourcesReport
+    {
+        ShortString Part1Prefix;
+        DataSources 'Document, Part2, TestReport.Part1';
+    }
+
+    FilterBy Part1.'TestReport.MultipleSourcesReport' '(repository, parameter) =>
+        repository.TestReport.Part1.Query()
+            .Where(s1 => s1.Name.StartsWith(parameter.Part1Prefix))
+            .OrderByDescending(s1 => s1.Name).ToArray()';
+    FilterByLinkedItems Document.'TestReport.MultipleSourcesReport' TestReport.Part1.Parent;
+    FilterByReferenced Part2.'TestReport.MultipleSourcesReport' TestReport.Part2.Parent 'subItems => subItems.OrderBy(item => item.Name.Length).ToArray()';
+    
+    // Report with custom file generator:
+    
+    ReportFile CustomFileReport '(object[][] reportData, string convertFormat, Common.ExecutionContext executionContext) =>
+        {
+            var documents = reportData[0].Cast<TestReport.Document>();
+            var parts = reportData[1].Cast<TestReport.Part1>();
+            string textFileData =
+                string.Join(", ", documents.Select(item => item.Name))
+                + "|" + string.Join(", ", parts.Select(item => item.Name));
+                
+            byte[] fileData = new UTF8Encoding().GetBytes(textFileData);
+            return new Rhetos.Dom.DefaultConcepts.ReportFile { Name = "CustomFileReport.txt", Content = fileData };
+        }'
+    {
+        ShortString Prefix;
+        DataSources 'Document, Part1';
+    }
+    
+    FilterBy Part1.'TestReport.CustomFileReport' '(repository, parameter) => repository.TestReport.Part1.Query()
+        .Where(s => s.Name.StartsWith(parameter.Prefix))
+        .OrderBy(s => s.Name).ToArray()';
+    FilterByLinkedItems Document.'TestReport.CustomFileReport' TestReport.Part1.Parent;
+}
